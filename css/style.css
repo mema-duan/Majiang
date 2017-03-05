@@ -4,11 +4,25 @@
     100% { opacity: 0.7; }
 }
 
+#navi {
+    text-align: right;
+}
+#navi a {
+    color: white;
+    text-decoration: none;
+}
+
 body {
     color: white;
     font-size: 12px;
     font-family: sans-serif;
     background: #036;
+    margin-top: 0px;
+}
+
+@media print {
+    body  { color: black;  }
+    #navi { display: none; }
 }
 
 #loadimage {

@@ -238,6 +238,7 @@ Majiang.View.Chang.prototype.redraw = function() {
     for (var l = 0; l < 4; l++) {
         var id = (this._chang.qijia + this._chang.jushu + l) % 4;
         var c  = view_class[(id + 4 - this._viewpoint) % 4];
+        $('.player.'+c).text(this._chang.player[id]);
         var defen = '' + this._chang.defen[id];
         defen = defen.replace(/(\d)(\d{3})$/, '$1,$2');
         this._node.find('.defen .'+c).text(feng_hanzi[l] + ': ' + defen);
@@ -532,6 +533,8 @@ Majiang.View.Controler = function(node, game) {
             return false;
         });
     });
+ 
+    this._node.children().show();
 
     this.update();
 }
@@ -554,54 +557,70 @@ Majiang.View.Controler.prototype.update = function() {
 
 
 /*
+ *  Majiang.View.Say
+ */
+
+(function(){
+
+var view_class = ['main','xiajia','duimian','shangjia'];
+
+Majiang.View.Say = {
+
+    _str: {
+        chi:    'チー',
+        peng:   'ポン',
+        gang:   'カン',
+        lizhi:  'リーチ',
+        rong:   'ロン',
+        zimo:   'ツモ',
+    },
+    _node: [],
+ 
+    init: function(viewpoint) {
+        viewpoint = viewpoint || 0;
+        for (var l = 0; l < 4; l++) {
+            this._node[l] = $('.say.' + view_class[(l + 4 - viewpoint) % 4]);
+        }
+    },
+ 
+    play: function(name, l) {
+        this._node[l].text(this._str[name]).show().fadeOut(1000);
+    }
+}
+
+$(function(){ Majiang.View.Say.init() });
+
+})();
+
+/*
  *  Majiang.Audio
  */
 
 (function(){
 
-var url = {
-    dapai: 'audio/dahai11.wav',
-    chi:   'audio/chii.wav',
-    peng:  'audio/pon.wav',
-    gang:  'audio/kan.wav',
-    lizhi: 'audio/richi.wav',
-    rong:  'audio/ron.wav',
-    zimo:  'audio/tsumo.wav',
-};
-
 Majiang.Audio = {
 
     _audio: {
-        dapai: [],
-        chi:   [],
-        peng:  [],
-        gang:  [],
-        lizhi: [],
-        rong:  [],
-        zimo:  [],
+        dapai: new Audio('audio/dahai11.wav'),
+        chi:   new Audio('audio/chii.wav'),
+        peng:  new Audio('audio/pon.wav'),
+        gang:  new Audio('audio/kan.wav'),
+        lizhi: new Audio('audio/richi.wav'),
+        rong:  new Audio('audio/ron.wav'),
+        zimo:  new Audio('audio/tsumo.wav'),
     },
     _volume: 5,
  
-    init: function() {
-        for (var name in this._audio) {
-            for (var i = 0; i < 4; i++) {
-                this._audio[name][i] = new Audio(url[name]);
-            }
-        }
-    },
     volume: function(level) {
         if (level == null) return this._volume;
-        for (var name in this._audio)
-            for (var i = 0; i < this._audio[name].length; i++) {
-                this._audio[name][i].volume = level / 5;
-            }
+        for (var name in this._audio) {
+            this._audio[name].volume = level / 5;
+        }
         this._volume = level;
     },
     play: function(name, i) {
-        this._audio[name][i||0].play();
+        this._audio[name].play();
     }
 };
-
-$(function(){ Majiang.Audio.init() });
 
 })();

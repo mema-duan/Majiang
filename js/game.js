@@ -139,16 +139,16 @@ Majiang.Game.prototype.reply_zimo = function() {
         this.delay(function(){ self.pingju('九種九牌') }, 0)
     }
     else if (reply.type == 'hule') {
-        this.audio_play('zimo');
+        this.say('zimo');
         this.delay(function(){ self.hule() });
     }
     else if (reply.type == 'gang') {
-        this.audio_play('gang');
+        this.say('gang');
         this.delay(function(){ self.gang(reply.data) });
     }
     else if (reply.type == 'dapai') {
         if (reply.data.match(/\*$/)) {
-            this.audio_play('lizhi');
+            this.say('lizhi');
             this.delay(function(){ self.dapai(reply.data) },
                   (this._speed < 3) ? 500 : this._speed * 200
             );
@@ -168,7 +168,7 @@ Majiang.Game.prototype.reply_dapai = function() {
             (function(){
                 var lb = lunban;
                 var delay = self._hule.length * 150;
-                setTimeout(function(){ self.audio_play('rong', lb) }, delay);
+                setTimeout(function(){ self.say('rong', lb) }, delay);
             })();
             this._hule.push(lunban);
         }
@@ -215,12 +215,12 @@ Majiang.Game.prototype.reply_dapai = function() {
         if (reply.type == 'fulou') {
             var m = reply.data.replace(/0/g,'5');
             if (m.match(/^[mpsz](\d)\1\1\1/)) {
-                this.audio_play('gang', lunban);
+                this.say('gang', lunban);
                 this.delay(function(){ self.fulou(reply.data) });
                 return;
             }
             else if (m.match(/^[mpsz](\d)\1\1/)) {
-                this.audio_play('peng', lunban);
+                this.say('peng', lunban);
                 this.delay(function(){ self.fulou(reply.data) });
                 return;
             }
@@ -230,7 +230,7 @@ Majiang.Game.prototype.reply_dapai = function() {
         var lunban = (this._lunban + i) % 4;
         var reply = this._reply[this.player_id(lunban)];
         if (reply.type == 'fulou') {
-            this.audio_play('chi', lunban);
+            this.say('chi', lunban);
             this.delay(function(){ self.fulou(reply.data) });
             return;
         }
@@ -266,7 +266,7 @@ Majiang.Game.prototype.reply_gang = function() {
             (function(){
                 var lb = lunban;
                 var delay = self._hule.length * 150;
-                setTimeout(function(){ self.audio_play('rong', lb) }, delay);
+                setTimeout(function(){ self.say('rong', lb) }, delay);
             })();
             this._hule.push(lunban);
         }
@@ -302,6 +302,12 @@ Majiang.Game.prototype.reply_jieju = function() {
     if (this._callback) this._callback();
 }
 
+Majiang.Game.prototype.say = function(name, lunban) {
+    this.audio_play(name, lunban);
+    Majiang.View.Say.play(name,
+        this.player_id(lunban == null ? this._lunban : lunban));
+}
+
 Majiang.Game.prototype.audio_play = function(name, lunban) {
     if (this._speed == 0) return;
     Majiang.Audio.play(name,
@@ -310,8 +316,10 @@ Majiang.Game.prototype.audio_play = function(name, lunban) {
 
 Majiang.Game.prototype.create_view = function(viewpoint) {
 
-    $('.jiezhang').hide();
-
+    $('.jiezhang').removeClass('summary').hide();
+    $('.say').hide();
+    $('.menu').hide();
+ 
     viewpoint = viewpoint || 0;
 
     this._view = {
@@ -329,13 +337,16 @@ Majiang.Game.prototype.create_view = function(viewpoint) {
         var c = view_class[(this.player_id(l) + 4 - viewpoint) % 4];
         this._view.shoupai[l]
             = new Majiang.View.Shoupai(
-                    $('.shoupai.'+c), this._model.shoupai[l], c == 'main');
+                    $('.shoupai.'+c), this._model.shoupai[l],
+                                            this.player_id(l) == viewpoint);
         this._view.shoupai[l].redraw();
  
         this._view.he[l]
             = new Majiang.View.He($('.he.'+c), this._model.he[l]);
         this._view.he[l].redraw();
     }
+ 
+    Majiang.View.Say.init(viewpoint);
  
     this._view.jiesuan = new Majiang.View.Jiesuan($('.jiesuan'),
                                 this._model.shan, this._chang, viewpoint);
@@ -852,23 +863,6 @@ Majiang.Game.prototype.jieju = function() {
  
     Majiang.View.Jiezhang($('.jiezhang'), this._paipu);
 
-    /* 暫定 */
-    $('.jiezhang .paipu .replay').unbind('click').bind('click', function(){
-        $(this).unbind('click');
-        self._stop;
-        paipu = new Majiang.Game.Paipu(self._paipu);
-        paipu._callback = self._callback;
-        self._callback = null;
-        paipu.next();
-        return false;
-    }).show();
- 
-    var blob = new Blob([JSON.stringify(this._paipu)],
-                        { type: 'application/json'});
-    $('.jiezhang .paipu .download')
-        .attr('href', URL.createObjectURL(blob))
-        .attr('download', '牌譜.json')
- 
     var data = [];
     for (var l = 0; l < 4; l++) {
         data[l] = {

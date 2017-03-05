@@ -2,8 +2,20 @@
 
 @import url(style.css);
 
-body {
+body.game {
+    color: white;
     background: black;
+    margin: 0;
+}
+
+.game #navi {
+    width: 800px;
+    margin: 0 auto;
+}
+
+.game #navi a {
+    color: white;
+    text-decoration: none;
 }
 
 #title {
@@ -14,13 +26,30 @@ body {
     padding: 15px;
     text-align: center;
 }
+#title h1 {
+    height: 150px;
+    margin: 0px;
+}
 #title img {
     width: 600px;
 }
 #title .version {
-    font-family: Times, serif;
-    font-size: 16px;
+    width: 560px;
+    margin: 0 auto;
     text-align: right;
+    font-family: Times, sans;
+    font-size: 24px;
+}
+#title .loading {
+    width: 560px;
+    margin: 0 auto;
+    text-align: left;
+    font-family: Verdana, sans-serif;
+    font-size: 24px;
+    color: #666;
+}
+#title .error {
+    color: red;
 }
 
 #game {
@@ -31,11 +60,59 @@ body {
     height: 680px;
     margin: 0px auto;
     background: #036;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 #game > * {
     position: absolute;
     transform-origin: 0% 0%;
     cursor: default;
+}
+
+#game > .kaiju {
+    display: none;
+    position: relative;
+    border: solid 1px #666;
+    width:  580px;
+    background: #111;
+    margin: auto;
+    margin-top: 120px;
+}
+.kaiju .title {
+    margin: 40px 20px;
+    font-family: "Georgia", serif;
+    font-size: 32px;
+    text-align: center;
+}
+.kaiju .player {
+    margin: 40px 20px;
+    height: 132px;
+    font-family: "Georgia", serif;
+    font-size: 24px;
+}
+.kaiju .player > div {
+    position: absolute;
+    width: 240px;
+    height: 38px;
+    padding: 0px 10px;
+    background: #333;
+    border-radius: 4px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.kaiju .player .main {
+    transform: translate(140px, 96px);
+}
+.kaiju .player .xiajia {
+    transform: translate(280px, 48px);
+}
+.kaiju .player .duimian {
+    transform: translate(140px, 0px);
+}
+.kaiju .player .shangjia {
+    transform: translate(0px, 48px);
 }
 
 .chang {
@@ -71,6 +148,32 @@ body {
 .chang .defen .shangjia {
     text-align: left;
     transform: translate(10px, 24px);
+}
+
+#game > .player {
+    width: 120px;
+    height: 30px;
+    border-radius: 12px 0px;
+    padding: 2px 20px;
+    background: #111;
+    font-size: 20px;
+    font-family: "Georgia", serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+#game > .player.main {
+    transform: translate(120px, 570px);
+}
+#game > .player.xiajia {
+    transform: translate(710px, 580px) rotate(270deg);
+}
+#game > .player.duimian {
+    transform: translate(640px, 90px) rotate(180deg);
+}
+#game > .player.shangjia {
+    transform: translate(90px, 100px) rotate(90deg);
 }
 
 .shoupai.main {
@@ -126,7 +229,41 @@ body {
     text-align: center;
 }
 
+.say {
+    display: none;
+    width:  200px;
+    height: 100px;
+    font-size: 64px;
+    font-family: serif;
+    color: white;
+    text-shadow:  0px -2px 4px #333,
+                  2px -2px 4px #333,
+                  2px  0px 4px #333,
+                  2px  2px 4px #333,
+                  0px  2px 4px #333,
+                 -2px  2px 4px #333,
+                 -2px  0px 4px #333,
+                 -2px -2px 4px #333;
+}
+.say.main {
+    text-align: center;
+    transform: translate(300px, 520px);
+}
+.say.xiajia {
+    text-align: left;
+    transform: translate(600px, 290px);
+}
+.say.duimian {
+    text-align: center;
+    transform: translate(300px, 50px);
+}
+.say.shangjia {
+    text-align: right;
+    transform: translate(0px, 290px);
+}
+
 .UI {
+    display: none;
     width: 580px;
     text-align: right;
     transform: translate(120px, 580px);
@@ -307,6 +444,10 @@ body {
     text-align: center;
     font-size:  24px;
 }
+.jiezhang.summary tbody tr:hover,
+.jiezhang.summary tbody tr:hover td {
+    background: #999;
+}
 .jiezhang .paipu {
     width: 640px;
     margin: 10px auto;
@@ -332,8 +473,8 @@ body {
 }
 
 .controler {
-    transform: translate(160px, 180px);
-    font-family: Impact;
+    transform: translate(120px, 120px);
+    font-family: Impact, "Arial Narrow", sans-serif;
     font-size: 16px;
     color: white;
     opacity: 0.3;
@@ -343,4 +484,48 @@ body {
 }
 .controler .scale .off{
     color: #666;
+}
+
+.menu {
+    width: 120px;
+    transform: translate(560px, 480px);
+    font-size: 14px;
+    text-align: right;
+}
+.menu a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.3;
+}
+.menu a:hover {
+    opacity: 1.0;
+}
+
+@media print {
+    body.game {
+        color: black;
+        background: white;
+    }
+    #game {
+        margin: 15px auto;
+        background: white;
+    }
+    .chang {
+        background: white;
+        border: solid 1px #ccc;
+    }
+    #game .player {
+        background: white;
+        border: solid 1px #ccc;
+    }
+    .jiesuan, .jiezhang {
+        background: white;
+        border: solid 1px #ccc;
+    }
+    .controler {
+        display: none;
+    }
+    .menu {
+        display: none !important;
+    }
 }
