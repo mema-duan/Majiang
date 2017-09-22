@@ -17,6 +17,9 @@ Majiang.SuanPai = function(hongpai) {
         this._paishu.p[0] = hongpai.p;
         this._paishu.s[0] = hongpai.s;
     }
+    this._zhuangfeng = 0;
+    this._menfeng    = 0;
+    this._baopai     = [];
  
     this._dapai = [];
     for (var l = 0; l < 4; l++) {
@@ -111,7 +114,7 @@ Majiang.SuanPai.prototype.paijia = function(p) {
     var s = p[0], n = p[1]-0||5;
 
     if (s == 'z') {
-        rv = this.paishu(s+n) * weight(s+n);
+        rv = this.paishu(s+n) * weight(s, n);
     }
     else {
         var left   = (1 <= n-2)
@@ -121,11 +124,28 @@ Majiang.SuanPai.prototype.paijia = function(p) {
         var right  = (n+2 <= 9)
                    ? Math.min(this.paishu(s+(n+1)), this.paishu(s+(n+2))) : 0;
 
-        rv = left                    * weight(s, n-2)
-           + Math.max(left, center)  * weight(s, n-1)
-           + this.paishu(s+n)        * weight(s, n)
-           + Math.max(center, right) * weight(s, n+1)
-           + right                   * weight(s, n+2);
+        var n_pai = [
+            left,
+            Math.max(left, center),
+            this.paishu(s+n),
+            Math.max(center, right),
+            right
+        ];
+        var n_hongpai = this.paishu(s+'0');
+
+        rv  = n_pai[0] * weight(s, n-2)
+            + n_pai[1] * weight(s, n-1)
+            + n_pai[2] * weight(s, n)
+            + n_pai[3] * weight(s, n+1)
+            + n_pai[4] * weight(s, n+2);
+ 
+        rv += n_hongpai == 0 ? 0
+            : (n == 7)       ? Math.min(n_hongpai, n_pai[0]) * weight(s, n-2)
+            : (n == 6)       ? Math.min(n_hongpai, n_pai[1]) * weight(s, n-1)
+            : (n == 5)       ? Math.min(n_hongpai, n_pai[2]) * weight(s, n)
+            : (n == 4)       ? Math.min(n_hongpai, n_pai[3]) * weight(s, n+1)
+            : (n == 3)       ? Math.min(n_hongpai, n_pai[4]) * weight(s, n+2)
+            :                  0;
     }
 
     if (p[1] == '0')                   rv *= 2;
@@ -178,6 +198,20 @@ Majiang.SuanPai.prototype.suan_weixian_all = function(l) {
         }
     }
     return weixian;
+}
+
+Majiang.SuanPai.prototype.suan_paishu_all = function() {
+
+    var paishu = {};
+    for (var s of ['m','p','s','z']) {
+        var nn = (s == 'z') ? [1,2,3,4,5,6,7] : [0,1,2,3,4,5,6,7,8,9];
+        for (var n of nn) {
+            if (s != 'z' && n == 5)
+                    paishu[s+n] = this._paishu[s][n] - this._paishu[s][0];
+            else    paishu[s+n] = this._paishu[s][n];
+        }
+    }
+    return paishu;
 }
 
 })();

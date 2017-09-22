@@ -8,6 +8,7 @@ Majiang.Game = function() {
 
     this._speed    = 3;
     this._stop     = false;
+    this._timeout_id;
     this._callback;
     
     this._chang = {
@@ -97,25 +98,35 @@ Majiang.Game.prototype.call_players = function(type, data, timeout) {
     else    timeout = this._speed * 200;
  
     this._reply = [];
+    this._timeout_id = setTimeout(function(){self.next()}, timeout);
     for (var l = 0; l < 4; l++) {
         (function(){
             var id = self.player_id(l);
             var lb = l;
-            var delay = (self._player[id] instanceof Majiang.UI) ? 0 : timeout;
             setTimeout(function(){
                 self._player[id].action(type, data[lb], function(type, reply){
-                    self.next(id, type || '', reply)
+                    self.reply(id, type || '', reply)
                 });
-            }, delay);
+            }, self._speed ? 20 : 0);
         })();
     }
 }
 
-Majiang.Game.prototype.next = function(id, type, data) {
+Majiang.Game.prototype.reply = function(id, type, data) {
 
     var self = this;
- 
-    if (id != null) this._reply[id] = { type: type, data: data };
+
+    this._reply[id] = { type: type, data: data };
+    if (this._reply.filter(function(x){return x}).length < 4) return;
+    if (! this._timeout_id)
+                this._timeout_id = setTimeout(function(){self.next()}, 0);
+}
+
+Majiang.Game.prototype.next = function() {
+
+    var self = this;
+
+    this._timeout_id = null;
     if (this._reply.filter(function(x){return x}).length < 4) return;
     if (this._stop) return;
  
